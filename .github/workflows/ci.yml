@@ -23,10 +23,10 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Run tests
-        run: go test -short -v -race -count=1 ./...
+        run: go test -short -v -race -count=1 -timeout 2m ./...
 
       - name: Run benchmarks
-        run: go test -bench=. -benchmem ./... -count=1
+        run: go test -bench=. -benchmem -count=1 -benchtime=100ms -timeout 2m ./...
 
   lint:
     runs-on: ubuntu-latest
