@@ -1,5 +1,7 @@
 # GoShield 🛡️
+[![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev/)
 
+[![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev/)
 **Unified Resilience Toolkit for Go**
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/atop0914/goshield.svg)](https://pkg.go.dev/github.com/atop0914/goshield)
