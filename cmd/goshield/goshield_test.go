@@ -1,4 +1,4 @@
-package goshield
+package main
 
 import "testing"
 
