@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestExecute_SuccessNoError(t *testing.T) {
@@ -112,13 +113,14 @@ func TestExecute_OnFallbackCallback(t *testing.T) {
 	if result != "recovered" {
 		t.Fatalf("expected 'recovered', got %v", result)
 	}
-	// OnFallback is called asynchronously, give it a moment
-	// But in this test, since Fallback is called synchronously, the callback
-	// runs in a goroutine before Fallback returns
+	// OnFallback runs in its own goroutine (see fallback.Execute), so wait
+	// briefly for it to signal before asserting; otherwise the test races.
+	deadline := time.Now().Add(2 * time.Second)
+	for !called.Load() && time.Now().Before(deadline) {
+		time.Sleep(time.Millisecond)
+	}
 	if !called.Load() {
-		// Give it a little time since it's a goroutine
-		// Actually the callback runs before Fallback
-		// This may or may not have completed - that's fine for async
+		t.Fatal("expected OnFallback to be called")
 	}
 }
 
@@ -126,8 +128,8 @@ func TestExecute_NilFallbackNilOnFallback(t *testing.T) {
 	origErr := errors.New("original error")
 
 	config := Config{
-		Fallback:    nil,
-		OnFallback:  nil,
+		Fallback:   nil,
+		OnFallback: nil,
 	}
 
 	result, err := Execute(context.Background(), config, func(ctx context.Context) (any, error) {

@@ -503,10 +503,14 @@ func BenchmarkFibonacci(b *testing.B) {
 func BenchmarkFibonacci_Parallel(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0
+		// Local sink keeps the compiler from eliding fibonacci without
+		// racing on a shared package-level variable under -race.
+		var fibSink int
 		for pb.Next() {
-			fibonacci(i % 20)
+			fibSink = fibonacci(i % 20)
 			i++
 		}
+		_ = fibSink
 	})
 }
 

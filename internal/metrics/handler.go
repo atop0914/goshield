@@ -30,7 +30,11 @@ func (h *metricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(body)))
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(body))
+	if _, err := w.Write([]byte(body)); err != nil {
+		// The client is gone or the connection failed mid-response; headers
+		// are already sent, so there is nothing left to report to the caller.
+		return
+	}
 }
 
 // CollectorFunc is an adapter to allow the use of ordinary functions as Collectors.

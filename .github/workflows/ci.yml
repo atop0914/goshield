@@ -14,10 +14,10 @@ jobs:
         go-version: ['1.22', '1.23', '1.24', '1.25']
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go-version }}
       
@@ -36,14 +36,16 @@ jobs:
     needs: test
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.24'
       
       - name: Build
         run: |
-          go build -ldflags="-s -w" -o goshield ./cmd/goshield
-          ls -la goshield
+          # goshield is a library (no cmd/ main package); verify every
+          # package compiles and vet passes.
+          go build ./...
+          go vet ./...
