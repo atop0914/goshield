@@ -276,7 +276,10 @@ func BenchmarkTokenBucket_Wait_Parallel(b *testing.B) {
 }
 
 func BenchmarkSlidingWindow_Wait(b *testing.B) {
-	sw := NewSlidingWindow(1000000, 1*time.Minute)
+	// Size the limit to b.N so a slot is always immediately available.
+	// A fixed limit smaller than b.N makes Wait block for the whole window
+	// once the window fills, which hangs the benchmark (and CI) forever.
+	sw := NewSlidingWindow(b.N, 1*time.Minute)
 	ctx := context.Background()
 	b.ResetTimer()
 
@@ -286,7 +289,9 @@ func BenchmarkSlidingWindow_Wait(b *testing.B) {
 }
 
 func BenchmarkSlidingWindow_Wait_Parallel(b *testing.B) {
-	sw := NewSlidingWindow(10000000, 1*time.Minute)
+	// Same reasoning as above: RunParallel escalates the iteration count
+	// across goroutines, so the limit must cover every call.
+	sw := NewSlidingWindow(b.N, 1*time.Minute)
 	ctx := context.Background()
 	b.ResetTimer()
 
